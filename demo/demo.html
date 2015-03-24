@@ -1,0 +1,112 @@
+<!doctype html>
+<html ng-app="dw15DemoApp">
+<head>
+	<title>Taskchik</title>
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.css">	
+</head>
+<body>
+	<div class="container" ng-controller="mainController">
+		<div class="row">
+			<div class="col-md-offset-2 col-md-8">
+				<div class="page-header">
+					<h1>Taskchik
+						<small>your one stop task keeper</small>
+					</h1>					
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-offset-2 col-md-8">			
+				<button ng-click="load()">Load</button>
+				<button ng-click="save()">Save</button>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-offset-2 col-md-8">							
+				<ul class="list-group">
+					<li class="list-group-item" ng-class="{'list-group-item-success': currentTask.completed}" ng-repeat="currentTask in tasks track by currentTask.id">										
+						<task source="currentTask"></task>					
+					</li>									
+				</ul>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-offset-3 col-md-8">
+				<form class="form-horizontal">
+					<div class="form-group">
+						<label for="title" class="control-label col-sm-2">Title</label>
+						<div class="col-sm-6">
+							<input type="text" class="form-control" ng-model="taskTitle">
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="description" class="control-label col-sm-2">Description</label>
+						<div class="col-sm-6">
+							<textarea id="description" class="form-control" rows="2" ng-model="taskDescription"></textarea>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-sm-8 text-right">
+							<button class="btn btn-primary" ng-click="addTask()"><span class="glyphicon glyphicon-plus"></span> Add Task</button>
+						</div>
+					</div>				
+				</form>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-offset-2 col-md-8">		
+				<h3>Your first task:</h3>
+				<task source="tasks[0]"><task>
+			</div>
+		</div>
+	</div>
+	<script src="angular.js"></script>
+	<script>
+	var module = angular.module("dw15DemoApp", []);	
+	module.controller("mainController", function($scope, storageService) {
+		$scope.tasks = [];
+
+		$scope.addTask = function() {
+			$scope.tasks.push({
+				id: $scope.tasks.length,
+				title: $scope.taskTitle,
+				description: $scope.taskDescription,
+				completed: false
+			});
+
+			$scope.taskTitle = '';
+			$scope.taskDescription = '';
+		};
+		$scope.load = function(){
+			$scope.tasks = storageService.load("tasks");
+		};
+		$scope.save = function() {
+			storageService.save("tasks", $scope.tasks);
+		};
+	});
+
+	module.service("storageService", function() {
+		return {
+			save: function(key, obj) {
+				localStorage[key] = JSON.stringify(obj);
+			},
+			load: function(key) {
+				return JSON.parse(localStorage[key]);
+			}
+		};
+	});
+
+	module.directive("task", function() {
+		return {
+			restrict: 'E',
+			templateUrl: 'task.html',
+			scope: {
+				source: '='
+			}
+		};
+	});
+	</script>
+</body>
+</html>
